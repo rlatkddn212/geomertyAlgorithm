@@ -1,5 +1,5 @@
 # geomertyAlgorithm
-실무에 사용되는 기하 알고리즘을 정리 합니다.
+기하 알고리즘을 정리 합니다.
 
 
 ##### CheckCCW
