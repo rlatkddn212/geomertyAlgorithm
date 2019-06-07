@@ -10,7 +10,7 @@
 
 모든 정점을 돌면서 각 정점의 각도를 계산하여 180도가 넘는 각이 있으면 오목 다각형이므로 false를 리턴함
 
-![1559774618655](C:\Users\swkim\AppData\Roaming\Typora\typora-user-images\1559774618655.png)
+![1559774618655](https://github.com/rlatkddn212/geomertyAlgorithm/blob/master/assets/1559774618655.png)
 
 왼쪽이 볼록 폴리곤, 오른쪽이 오목 폴리곤이다. 오목 폴리곤의 경우 꼭지점 하나가 180도 이상의 각을 가진다.
 

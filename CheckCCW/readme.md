@@ -4,7 +4,7 @@
 
 
 
-![1559867054865](C:\Users\swkim\AppData\Roaming\Typora\typora-user-images\1559867054865.png)
+![1559867054865](https://github.com/rlatkddn212/geomertyAlgorithm/blob/master/assets/1559867054865.png)
 
  p1, p2로 가는 벡터에 대하여 다음 점 p3가 반시계 방향에 위치하는지 검사할 수 있다.
 

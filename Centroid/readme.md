@@ -8,7 +8,7 @@
 
 {139, 106},{142, 190}, {290, 220},{382, 141},{360, 63},{287, 115},{210, 88},{200, 140}
 
-![1559857699794](C:\Users\swkim\AppData\Roaming\Typora\typora-user-images\1559857699794.png)
+![1559857699794](https://github.com/rlatkddn212/geomertyAlgorithm/blob/master/assets/1559857699794.png)
 
 이런 폴리곤에서 중점을 구하려면
 

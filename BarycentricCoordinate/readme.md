@@ -12,7 +12,7 @@ barycentric coordinates는 삼각형 안에서 한점에서 적절히 보간된 
 
 
 
-![1559861296821](C:\Users\swkim\AppData\Roaming\Typora\typora-user-images\1559861296821.png)
+![1559861296821](https://github.com/rlatkddn212/geomertyAlgorithm/blob/master/assets/1559861296821.png)
 
 위 삼각형의 점 P에서의 속성값을 구한다고 해보자.
 
