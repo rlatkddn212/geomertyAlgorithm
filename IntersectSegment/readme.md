@@ -4,5 +4,5 @@
 
 
 
-![1559856828045](C:\Users\swkim\AppData\Roaming\Typora\typora-user-images\1559856828045.png)
+![1559856828045](https://github.com/rlatkddn212/geomertyAlgorithm/blob/master/assets/1559856828045.png)
 

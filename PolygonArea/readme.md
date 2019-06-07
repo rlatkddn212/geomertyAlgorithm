@@ -6,7 +6,7 @@
 
 폴리곤은 안의 임의의 점에서 각 정점들을 연결하여 삼각형을 만든 후 합을 구한다.
 
-![1559773957688](C:\Users\swkim\AppData\Roaming\Typora\typora-user-images\1559773957688.png)
+![1559773957688](https://github.com/rlatkddn212/geomertyAlgorithm/blob/master/assets/1559773957688.png)
 
 s = s1 + s2 + s3 +s4 + s5 + s6
 
