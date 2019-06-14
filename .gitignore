@@ -347,3 +347,5 @@ healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
+.vs/geomerty/v15/Browse.VC.db
+.vs/geomerty/v15/.suo
