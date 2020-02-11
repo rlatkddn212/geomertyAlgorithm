@@ -57,15 +57,20 @@ vector<Triangle> triangulate(CVector2D* polygon, size_t polySize)
 
 int main()
 {
-	CVector2D polygon[POLY_SIZE] = { {200, 140}, {210, 88}, {287, 115}, {360, 63}, {382, 141}, {290, 220},{142, 190}, {139, 106} };
+	CVector2D polygon[POLY_SIZE] = { 
+		{200, 140}, {210, 88}, {287, 115},
+	{360, 63}, {382, 141}, {290, 220},
+	{142, 190}, {139, 106} };
+
 	//CVector2D polygon[POLY_SIZE] = { {1, 1},{1, 2}, {3, 2}};
 
 
-	vector<Triangle>  ret = triangulate(polygon, POLY_SIZE);
+	vector<Triangle> ret = triangulate(polygon, POLY_SIZE);
 
 	for (int i = 0; i < ret.size(); ++i)
 	{
-		printf("»ï°¢Çü : p1(%f, %f), p2(%f, %f), p3(%f, %f)\n", ret[i]._p1.x, ret[i]._p1.y, ret[i]._p2.x, ret[i]._p2.y, ret[i]._p3.x, ret[i]._p3.y);
+		printf("»ï°¢Çü : p1(%f, %f), p2(%f, %f), p3(%f, %f)\n",
+			ret[i]._p1.x, ret[i]._p1.y, ret[i]._p2.x, ret[i]._p2.y, ret[i]._p3.x, ret[i]._p3.y);
 	}
 
 	return 0;

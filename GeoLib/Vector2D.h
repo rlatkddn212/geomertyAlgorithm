@@ -23,7 +23,7 @@ public:
 
 	double						angle(const CVector2D& rhs);
 
-	
+	bool						Equal(const CVector2D& rhs) { return x == rhs.x && y == rhs.y; }
 
 	CVector2D					operator * (double rhs) const;
 	CVector2D					operator - (const CVector2D& rhs) const;
