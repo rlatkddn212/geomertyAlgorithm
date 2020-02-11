@@ -11,12 +11,6 @@
 |[BarycentricCoordinate](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/BarycentricCoordinate)|삼각형의 무게중심 좌표계|완료|
 |[IntersectSegment](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/IntersectSegment)|선분과 선분의 교차점 구하기|완료|
 |[Triangulate](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/Triangulate)|폴리곤 삼각화 방법 (ear clipping)|완료|
-|[CubeMesh](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/CubeMesh)|큐브 모양 메쉬|(TODO)|
-|[SphereMesh](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/SphereMesh)|원 모양 메쉬|(TODO)|
-|[ConeMesh](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/ConeMesh)|원뿔 모양 메쉬|(TODO)|
-|[CylinderMesh](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/CylinderMesh)|원 기둥 모양 메쉬|(TODO)|
-|[TorusMesh](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/TorusMesh)|도넛 모양 메쉬|(TODO)|
-|[DiskMesh](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/DiskMesh)|디스크 모양 메쉬|(TODO)|
-|[HyperboloidMesh](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/HyperboloidMesh)|쌍곡면 메쉬|(TODO)|
+|[Delaunay](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/Delaunay)|들로네 삼각화 (구현중)|
 |[CatmullRomSplines](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/CatmullRomSplines)|카멀롬 스플라인|(TODO)|
 
