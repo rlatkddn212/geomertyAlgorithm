@@ -9,7 +9,33 @@
 #include <algorithm>
 using namespace std;
 
-struct Node;
+double TRIANGLE_SIZE = 1000.0;
+
+struct Triangle;
+struct Node
+{
+	Node()
+	{
+		triangle = nullptr;
+		p0 = nullptr;
+		p1 = nullptr;
+		visited = false;
+	}
+
+	shared_ptr<Triangle> triangle;
+
+	shared_ptr<Node> p0;
+	shared_ptr<Node> p1;
+
+	vector<shared_ptr<Node>> childs;
+	bool visited;
+
+	void AddChlid(shared_ptr<Node> newNode)
+	{
+		childs.push_back(newNode);
+	}
+};
+
 struct Triangle
 {
 	CVector2D p0;
@@ -28,11 +54,27 @@ struct Triangle
 		p2 = _p2;
 	}
 
+	void print()
+	{
+		//printf("삼각형 : p1(%f, %f), p2(%f, %f), p3(%f, %f)\n",
+		//	p0.x, p0.y, p1.x, p1.y, p2.x, p2.y);
+	}
+
+	bool IsOnPoint(CVector2D p)
+	{
+		if (p0.Equal(p) || p1.Equal(p) || p2.Equal(p))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	bool IsPointInTriangle(CVector2D p)
 	{
-		if ((ccw(p - p0, p1 - p0) < 0.0) &&
-			(ccw(p - p1, p2 - p1) < 0.0) &&
-			(ccw(p - p2, p0 - p2) < 0.0))
+		if ((ccw(p - p0, p1 - p0) <= 0.0) &&
+			(ccw(p - p1, p2 - p1) <= 0.0) &&
+			(ccw(p - p2, p0 - p2) <= 0.0))
 		{
 			return true;
 		}
@@ -87,14 +129,38 @@ struct Triangle
 	{
 		if (p.Equal(p0))
 		{
+			if (adj[1] &&
+				(adj[1]->p0.Equal(p) ||
+					adj[1]->p1.Equal(p) ||
+					adj[1]->p2.Equal(p)))
+			{
+				printf("Edge 오류\n");
+			}
+
 			return 1;
 		}
 		else if (p.Equal(p1))
 		{
+			if (adj[2] &&
+				(adj[2]->p0.Equal(p) ||
+					adj[2]->p1.Equal(p) ||
+					adj[2]->p2.Equal(p)))
+			{
+				printf("Edge 오류\n");
+			}
+
 			return 2;
 		}
 		else if (p.Equal(p2))
 		{
+			if (adj[0] &&
+				(adj[0]->p0.Equal(p) ||
+					adj[0]->p1.Equal(p) ||
+					adj[0]->p2.Equal(p)))
+			{
+				printf("Edge 오류\n");
+			}
+
 			return 0;
 		}
 
@@ -106,13 +172,45 @@ struct Triangle
 		switch (edge)
 		{
 		case 0:
+			if (0 != GetSideEdge(p2))
+			{
+				printf("Point 오류\n");
+			}
+
 			return p2;
 			break;
 		case 1:
+			if (1 != GetSideEdge(p0))
+			{
+				printf("Point 오류\n");
+			}
 			return p0;
 			break;
 		case 2:
+			if (2 != GetSideEdge(p1))
+			{
+				printf("Point 오류\n");
+			}
 			return p1;
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	pair<CVector2D, CVector2D> GetEdgePoint(int edge)
+	{
+		switch (edge)
+		{
+		case 0:
+			return make_pair(p0, p1);
+			break;
+		case 1:
+			return make_pair(p1, p2);
+			break;
+		case 2:
+			return make_pair(p2, p0);
 			break;
 
 		default:
@@ -125,30 +223,106 @@ struct Triangle
 		vector<shared_ptr<Triangle>> ret;
 
 		int edge = GetEdge(p);
-		
+
 		switch (edge)
 		{
 		case 0:
 			ret.push_back(make_shared<Triangle>(p0, p, p2));
 			ret.push_back(make_shared<Triangle>(p, p1, p2));
-			ret[0]->adj[1] = ret[1]; ret[0]->adj[2] = adj[2];
-			ret[1]->adj[1] = adj[1]; ret[1]->adj[2] = ret[0];
+			ret[0]->adj[1] = ret[1];
+			ret[0]->adj[2] = adj[2];
+
+			for (int i = 0; i < 3; ++i)
+			{
+				if (adj[2]->adj[i].get() == this)
+				{
+					adj[2]->adj[i] = ret[0];
+					break;
+				}
+			}
+
+			ret[1]->adj[1] = adj[1];
+			for (int i = 0; i < 3; ++i)
+			{
+				if (adj[1]->adj[i].get() == this)
+				{
+					adj[1]->adj[i] = ret[1];
+					break;
+				}
+			}
+			ret[1]->adj[2] = ret[0];
+
 			break;
 		case 1:
 			ret.push_back(make_shared<Triangle>(p1, p, p0));
 			ret.push_back(make_shared<Triangle>(p, p2, p0));
-			ret[0]->adj[1] = ret[1]; ret[0]->adj[2] = adj[0];
-			ret[1]->adj[1] = adj[2]; ret[1]->adj[2] = ret[0];
+			ret[0]->adj[1] = ret[1];
+			ret[0]->adj[2] = adj[0];
+			for (int i = 0; i < 3; ++i)
+			{
+				if (adj[0]->adj[i].get() == this)
+				{
+					adj[0]->adj[i] = ret[0];
+					break;
+				}
+			}
+
+			ret[1]->adj[1] = adj[2];
+			for (int i = 0; i < 3; ++i)
+			{
+				if (adj[2]->adj[i].get() == this)
+				{
+					adj[2]->adj[i] = ret[1];
+					break;
+				}
+			}
+			ret[1]->adj[2] = ret[0];
+
 			break;
 		case 2:
 			ret.push_back(make_shared<Triangle>(p2, p, p1));
 			ret.push_back(make_shared<Triangle>(p, p0, p1));
-			ret[0]->adj[1] = ret[1]; ret[0]->adj[2] = adj[1];
-			ret[1]->adj[1] = adj[0]; ret[1]->adj[2] = ret[0]; 
+			ret[0]->adj[1] = ret[1];
+			ret[0]->adj[2] = adj[1];
+			for (int i = 0; i < 3; ++i)
+			{
+				if (adj[1]->adj[i].get() == this)
+				{
+					adj[1]->adj[i] = ret[0];
+					break;
+				}
+			}
+			ret[1]->adj[1] = adj[0];
+			for (int i = 0; i < 3; ++i)
+			{
+				if (adj[0]->adj[i].get() == this)
+				{
+					adj[0]->adj[i] = ret[1];
+					break;
+				}
+			}
+			ret[1]->adj[2] = ret[0];
+
 			break;
 		default:
 			break;
 		}
+
+		// DAG
+		shared_ptr<Node> parentNode = thisNode.lock();
+
+		shared_ptr<Node> newNode0 = make_shared<Node>();
+		shared_ptr<Node> newNode1 = make_shared<Node>();
+
+		newNode0->triangle = ret[0];
+		newNode1->triangle = ret[1];
+
+		ret[0]->thisNode = newNode0;
+		ret[1]->thisNode = newNode1;
+
+		// 분리된 삼각형을 DAG에 연결한다.
+		parentNode->AddChlid(newNode0);
+		parentNode->AddChlid(newNode1);
 
 		return ret;
 	}
@@ -164,10 +338,10 @@ shared_ptr<Triangle> GetLargeTriangle(const vector<CVector2D>& points)
 {
 	double minX = points[0].x;
 	double maxX = points[0].x;
-	
+
 	double minY = points[0].y;
 	double maxY = points[0].y;
-	
+
 	for (size_t i = 0; i < points.size(); ++i)
 	{
 		minX = min(points[i].x, minX);
@@ -176,33 +350,10 @@ shared_ptr<Triangle> GetLargeTriangle(const vector<CVector2D>& points)
 		maxY = max(points[i].y, maxY);
 	}
 
-	return make_shared<Triangle>(CVector2D((minX + maxX) / 2.0, maxY + (maxY - minY) * 100.0),
-					CVector2D(minX - (maxX - minX) * 100.0, minY - (maxY - minY) * 100.0),
-					CVector2D(maxX + (maxX - minX) * 100.0, minY - (maxY - minY) * 100.0));
+	return make_shared<Triangle>(CVector2D((minX + maxX) / 2.0, maxY + (maxY - minY) * 100.0 + TRIANGLE_SIZE),
+		CVector2D(minX - (maxX - minX) * 100.0 - TRIANGLE_SIZE, minY - (maxY - minY) * 100.0 - TRIANGLE_SIZE),
+		CVector2D(maxX + (maxX - minX) * 100.0 + TRIANGLE_SIZE, minY - (maxY - minY) * 100.0 - TRIANGLE_SIZE));
 }
-
-struct Node
-{
-	Node()
-	{
-		triangle = nullptr;
-		p0 = nullptr;
-		p1 = nullptr;
-	}
-
-	shared_ptr<Triangle> triangle;
-
-	shared_ptr<Node> p0;
-	shared_ptr<Node> p1;
-
-	vector<shared_ptr<Node>> childs;
-
-
-	void AddChlid(shared_ptr<Node> newNode)
-	{
-		childs.push_back(newNode);
-	}
-};
 
 class TriangleDAG
 {
@@ -216,21 +367,25 @@ public:
 
 	~TriangleDAG()
 	{
-		// Tree를 탐색하면서 동적할당 제거
+
 	}
 
 	shared_ptr<Node> GetNode(shared_ptr<Node> n, const CVector2D& p)
 	{
 		if (n->childs.empty()) return n;
 
-		for (size_t i = 0; n->childs.size(); ++i)
+		for (size_t i = 0; i < n->childs.size(); ++i)
 		{
 			if (n->childs[i]->triangle->IsPointInTriangle(p))
 			{
-				return GetNode(n->childs[i], p);
+				shared_ptr<Node> node = GetNode(n->childs[i], p);
+				if (node != nullptr)
+				{
+					return node;
+				}
 			}
 		}
-		
+
 		return nullptr;
 	}
 
@@ -241,14 +396,15 @@ public:
 
 	void GenTriangle(shared_ptr<Node> n)
 	{
-		if (n->childs.empty()) 
+		if (!n->visited && n->childs.empty())
 		{
+			n->visited = true;
 			ret.push_back(n->triangle);
 
 			return;
 		}
 
-		for (size_t i = 0; n->childs.size(); ++i)
+		for (size_t i = 0; i < n->childs.size(); ++i)
 		{
 			GenTriangle(n->childs[i]);
 		}
@@ -272,30 +428,150 @@ bool IsLegal(CVector2D point, shared_ptr<Triangle> triangle)
 	CVector2D a = triangle->p0 - triangle->p2;
 	CVector2D b = triangle->p1 - triangle->p2;
 
-	double asq = a.x * a.x + a.y * a.y;
-	double bsq = b.x * b.x + b.y * b.y;
 	double v = ccw(a, b);
 
-	if (v != 0)
+	double adx = triangle->p0.x - point.x, ady = triangle->p0.y - point.y,
+		bdx = triangle->p1.x - point.x, bdy = triangle->p1.y - point.y,
+		cdx = triangle->p2.x - point.x, cdy = triangle->p2.y - point.y,
+		bdxcdy = bdx * cdy, cdxbdy = cdx * bdy,
+		cdxady = cdx * ady, adxcdy = adx * cdy,
+		adxbdy = adx * bdy, bdxady = bdx * ady,
+		alift = adx * adx + ady * ady,
+		blift = bdx * bdx + bdy * bdy,
+		clift = cdx * cdx + cdy * cdy;
+
+	double det = alift * (bdxcdy - cdxbdy)
+		+ blift * (cdxady - adxcdy)
+		+ clift * (adxbdy - bdxady);
+
+	if (v > 0) return det >= 0;
+	else return det <= 0;
+}
+
+void checkAdj(shared_ptr<Triangle> t)
+{
+	for (int i = 0; i < 3; ++i)
 	{
-		CVector2D c = triangle->p2;
-		CVector2D center(c.x + (b.y * asq - a.y * bsq) / (2.0 * v), 
-						c.y + ( -b.x * asq + a.x * bsq) / (2.0 * v));
-		double radius = (a - center).Magnitude();
-		double dist = (point - center).Magnitude();
-		
-		return dist >= radius;
+		if (t->adj[i])
+		{
+			bool isFind = false;
+			for (int j = 0; j < 3; ++j)
+			{
+				if (t->adj[i]->adj[j] == t)
+				{
+					isFind = true;
+				}
+			}
+
+			if (!isFind)
+			{
+				printf("삼각형 인접 오류\n");
+				int a = 0;
+			}
+		}
 	}
 
-	return false;
+	t->GetSideEdge(t->p0);
+	t->GetSideEdge(t->p1);
+	t->GetSideEdge(t->p2);
+
+	t->GetSidePoint(0);
+	t->GetSidePoint(1);
+	t->GetSidePoint(2);
 }
 
 vector<shared_ptr<Triangle>> Flip(shared_ptr<Triangle> t0, int e0, shared_ptr<Triangle> t1, int e1)
 {
-	// link
-	// DAG 추가
+	CVector2D a = t0->GetSidePoint(e0);
+	CVector2D b = t1->GetSidePoint(e1);
 
-	return vector<shared_ptr<Triangle>>();
+	pair<CVector2D, CVector2D> p = t0->GetEdgePoint(e0);
+
+	if (ccw(b - a, p.first - a) <= 0.0)
+	{
+		CVector2D temp = p.first;
+		p.first = p.second;
+		p.second = temp;
+	}
+
+	vector<shared_ptr<Triangle>> ret;
+	ret.push_back(make_shared<Triangle>(a, b, p.first));
+	ret.push_back(make_shared<Triangle>(b, a, p.second));
+
+	// ret[0] 링크
+	ret[0]->adj[0] = ret[1];
+	int t1p2Edge = t1->GetSideEdge(p.second);
+	if (t1p2Edge != -1)
+	{
+		ret[0]->adj[1] = t1->adj[t1p2Edge];
+		shared_ptr<Triangle> adj = t1->adj[t1p2Edge];
+		if (adj)
+		{
+			adj->adj[adj->GetEdgeWithAdj(t1)] = ret[0];
+		}
+	}
+
+	int t0p2Edge = t0->GetSideEdge(p.second);
+	if (t0p2Edge != -1)
+	{
+		ret[0]->adj[2] = t0->adj[t0p2Edge];
+		shared_ptr<Triangle> adj = t0->adj[t0p2Edge];
+		if (adj)
+		{
+			adj->adj[adj->GetEdgeWithAdj(t0)] = ret[0];
+		}
+	}
+
+	// ret[1] 링크
+	ret[1]->adj[0] = ret[0];
+	int t0p1Edge = t0->GetSideEdge(p.first);
+	if (t0p1Edge != -1)
+	{
+		ret[1]->adj[1] = t0->adj[t0p1Edge];
+		shared_ptr<Triangle> adj = t0->adj[t0p1Edge];
+		if (adj)
+		{
+			adj->adj[adj->GetEdgeWithAdj(t0)] = ret[1];
+		}
+	}
+
+	int t1p1Edge = t1->GetSideEdge(p.first);
+	if (t1p1Edge != -1)
+	{
+		ret[1]->adj[2] = t1->adj[t1p1Edge];
+		shared_ptr<Triangle> adj = t1->adj[t1p1Edge];
+		if (adj)
+		{
+			adj->adj[adj->GetEdgeWithAdj(t1)] = ret[1];
+		}
+	}
+
+	// DAG
+	shared_ptr<Node> parentNode0 = t0->thisNode.lock();
+	shared_ptr<Node> parentNode1 = t1->thisNode.lock();
+
+	shared_ptr<Node> newNode0 = make_shared<Node>();
+	shared_ptr<Node> newNode1 = make_shared<Node>();
+
+	newNode0->triangle = ret[0];
+	newNode1->triangle = ret[1];
+
+	ret[0]->thisNode = newNode0;
+	ret[1]->thisNode = newNode1;
+
+	ret[0]->print();
+	ret[1]->print();
+
+	checkAdj(ret[0]);
+	checkAdj(ret[1]);
+
+	// 분리된 삼각형을 DAG에 연결한다.
+	parentNode0->AddChlid(newNode0);
+	parentNode0->AddChlid(newNode1);
+	parentNode1->AddChlid(newNode0);
+	parentNode1->AddChlid(newNode1);
+
+	return ret;
 }
 
 void LegalizeEdge(CVector2D point, shared_ptr<Triangle> triangle)
@@ -320,11 +596,10 @@ void LegalizeEdge(CVector2D point, shared_ptr<Triangle> triangle)
 	}
 
 	CVector2D p = adjTriangle->GetSidePoint(adjNum);
-	if (! IsLegal(p, triangle))
+	if (IsLegal(p, triangle))
 	{
 		// 플립
 		vector<shared_ptr<Triangle>> newTriangle = Flip(triangle, edgeNum, adjTriangle, adjNum);
-		
 		LegalizeEdge(point, newTriangle[0]);
 		LegalizeEdge(point, newTriangle[1]);
 	}
@@ -346,14 +621,37 @@ vector<shared_ptr<Triangle>> DelaunayTriangulate(const vector<CVector2D>& points
 		if (!triangle->IsOnLine(points[i]))
 		{
 			// 삼각형을 분할한다.
-			shared_ptr<Triangle> t0 = make_shared<Triangle>(points[0], triangle->p0, triangle->p1);
-			shared_ptr<Triangle> t1 = make_shared<Triangle>(points[0], triangle->p1, triangle->p2);
-			shared_ptr<Triangle> t2 = make_shared<Triangle>(points[0], triangle->p2, triangle->p0);
+			shared_ptr<Triangle> t0 = make_shared<Triangle>(points[i], triangle->p0, triangle->p1);
+			shared_ptr<Triangle> t1 = make_shared<Triangle>(points[i], triangle->p1, triangle->p2);
+			shared_ptr<Triangle> t2 = make_shared<Triangle>(points[i], triangle->p2, triangle->p0);
 
 			// 인접 삼각형 설정 (넣는 순서에 주의)
-			t0->adj.push_back(t1); t0->adj.push_back(triangle->adj[0]); t0->adj.push_back(t2);
-			t1->adj.push_back(t0); t1->adj.push_back(triangle->adj[1]); t1->adj.push_back(t2);
-			t2->adj.push_back(t1); t2->adj.push_back(triangle->adj[2]); t2->adj.push_back(t0);
+			t0->adj[0] = t2;
+			t0->adj[1] = triangle->adj[0];
+			t0->adj[2] = t1;
+			shared_ptr<Triangle> adj0 = triangle->adj[0];
+			if (adj0)
+			{
+				adj0->adj[adj0->GetEdgeWithAdj(triangle)] = t0;
+			}
+
+			t1->adj[0] = t0;
+			t1->adj[1] = triangle->adj[1];
+			t1->adj[2] = t2;
+			shared_ptr<Triangle> adj1 = triangle->adj[1];
+			if (adj1)
+			{
+				adj1->adj[adj1->GetEdgeWithAdj(triangle)] = t1;
+			}
+
+			t2->adj[0] = t1;
+			t2->adj[1] = triangle->adj[2];
+			t2->adj[2] = t0;
+			shared_ptr<Triangle> adj2 = triangle->adj[2];
+			if (adj2)
+			{
+				adj2->adj[adj2->GetEdgeWithAdj(triangle)] = t2;
+			}
 
 			// 삼각형을 DAG에 연결
 			shared_ptr<Node> parentNode = triangle->thisNode.lock();
@@ -365,6 +663,18 @@ vector<shared_ptr<Triangle>> DelaunayTriangulate(const vector<CVector2D>& points
 			newNode0->triangle = t0;
 			newNode1->triangle = t1;
 			newNode2->triangle = t2;
+
+			t0->thisNode = newNode0;
+			t1->thisNode = newNode1;
+			t2->thisNode = newNode2;
+
+			t0->print();
+			t1->print();
+			t2->print();
+
+			checkAdj(t0);
+			checkAdj(t1);
+			checkAdj(t2);
 
 			// 분리된 삼각형을 DAG에 연결한다.
 			parentNode->AddChlid(newNode0);
@@ -387,7 +697,7 @@ vector<shared_ptr<Triangle>> DelaunayTriangulate(const vector<CVector2D>& points
 			// 삼각형 생성
 			vector<shared_ptr<Triangle>> t0 = triangle->SplitTriangle(points[i]);
 			vector<shared_ptr<Triangle>> t1 = adjTriangle->SplitTriangle(points[i]);
-			
+
 			if ((t0[0]->p0.Equal(t1[0]->p0) && t0[0]->p1.Equal(t1[0]->p1)) ||
 				(t0[0]->p0.Equal(t1[0]->p1) && t0[0]->p1.Equal(t1[0]->p0)))
 			{
@@ -405,7 +715,17 @@ vector<shared_ptr<Triangle>> DelaunayTriangulate(const vector<CVector2D>& points
 				t1[0]->adj[0] = t0[1];
 				t1[1]->adj[0] = t0[0];
 			}
-			
+
+			t0[0]->print();
+			t0[1]->print();
+			t1[0]->print();
+			t1[1]->print();
+
+			checkAdj(t0[0]);
+			checkAdj(t0[1]);
+			checkAdj(t1[0]);
+			checkAdj(t1[1]);
+
 			LegalizeEdge(points[i], t0[0]);
 			LegalizeEdge(points[i], t0[1]);
 			LegalizeEdge(points[i], t1[0]);
@@ -413,16 +733,34 @@ vector<shared_ptr<Triangle>> DelaunayTriangulate(const vector<CVector2D>& points
 		}
 	}
 
-	return dag.GenTriangle();
+	vector<shared_ptr<Triangle>> ret = dag.GenTriangle();
+	vector<shared_ptr<Triangle>> res;
+	for (size_t i = 0; i < ret.size(); ++i)
+	{
+		if (largeTriangle->IsOnPoint(ret[i]->p0) ||
+			largeTriangle->IsOnPoint(ret[i]->p1) ||
+			largeTriangle->IsOnPoint(ret[i]->p2))
+		{
+			continue;
+		}
+
+		res.push_back(ret[i]);
+	}
+
+	return res;
 }
 
 int main()
 {
-	vector<CVector2D> points = 
+	/*vector<CVector2D> points =
 	{
 		{200, 140}, {210, 88}, {287, 115},
 		{360, 63}, {382, 141}, {290, 220},
 		{142, 190}, {139, 106}
+	};*/
+	vector<CVector2D> points =
+	{
+		{200, 100},{210, 100},{205, 100},{205, 150} ,{203, 100}
 	};
 
 	vector<shared_ptr<Triangle>> ret = DelaunayTriangulate(points);
