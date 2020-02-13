@@ -22,6 +22,10 @@ struct Node
 		visited = false;
 	}
 
+	~Node()
+	{
+	}
+
 	shared_ptr<Triangle> triangle;
 
 	shared_ptr<Node> p0;
@@ -43,7 +47,6 @@ struct Triangle
 	CVector2D p2;
 
 	weak_ptr<Node> thisNode;
-
 	vector<shared_ptr<Triangle>> adj;
 
 	Triangle(CVector2D _p0, CVector2D _p1, CVector2D _p2)
@@ -52,6 +55,10 @@ struct Triangle
 		p0 = _p0;
 		p1 = _p1;
 		p2 = _p2;
+	}
+
+	~Triangle()
+	{
 	}
 
 	void print()
@@ -396,17 +403,21 @@ public:
 
 	void GenTriangle(shared_ptr<Node> n)
 	{
-		if (!n->visited && n->childs.empty())
+		if (n->childs.empty())
 		{
-			n->visited = true;
 			ret.push_back(n->triangle);
 
 			return;
 		}
 
+		n->triangle.reset();
 		for (size_t i = 0; i < n->childs.size(); ++i)
 		{
-			GenTriangle(n->childs[i]);
+			if (!n->childs[i]->visited)
+			{
+				n->childs[i]->visited = true;
+				GenTriangle(n->childs[i]);
+			}
 		}
 	}
 
@@ -744,9 +755,10 @@ vector<shared_ptr<Triangle>> DelaunayTriangulate(const vector<CVector2D>& points
 			continue;
 		}
 
-		res.push_back(ret[i]);
+		res.push_back(make_shared<Triangle>(ret[i]->p0, ret[i]->p1, ret[i]->p2));
 	}
 
+	ret.clear();
 	return res;
 }
 
