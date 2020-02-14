@@ -11,6 +11,6 @@
 |[BarycentricCoordinate](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/BarycentricCoordinate)|삼각형의 무게중심 좌표계|완료|
 |[IntersectSegment](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/IntersectSegment)|선분과 선분의 교차점 구하기|완료|
 |[Triangulate](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/Triangulate)|폴리곤 삼각화 방법 (ear clipping)|완료|
-|[Delaunay](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/Delaunay)|들로네 삼각화 (구현중) |
+|[Delaunay](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/Delaunay)|들로네 삼각화  |
 |[CatmullRomSplines](https://github.com/rlatkddn212/geomertyAlgorithm/tree/master/CatmullRomSplines)|카멀롬 스플라인|(TODO)|
 
